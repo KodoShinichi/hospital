@@ -5,8 +5,9 @@ import java.util.Random;
 
 /**
  *医院父类(Hospital)
- *@author 刘芫
- *@version 2.0
+ * @author 刘芫
+ * @since jdk18
+ * @version 2.0
  */
 
 public class Hospital{
