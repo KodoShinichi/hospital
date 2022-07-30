@@ -11,6 +11,8 @@ import java.util.Random;
  */
 
 public class Hospital{
+    /*
+    * 起床后修改*/
     private int id; // 登记号
     private String name; // 姓名
     private String gender; // 性别
