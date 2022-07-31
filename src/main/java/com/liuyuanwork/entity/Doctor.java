@@ -1,10 +1,8 @@
 package com.liuyuanwork.entity;
 
-
 import java.util.Scanner;
-
-import com.liuyuanwork.customexception.GenderException;
-import com.liuyuanwork.interfacedemo.*;
+import com.liuyuanwork.customexception.ExceptionCatch;
+import com.liuyuanwork.index.Patient;
 
 /**
  * 医生类(Doctor)
@@ -13,203 +11,142 @@ import com.liuyuanwork.interfacedemo.*;
  */
 
 public class Doctor extends Hospital {
-    public static double rs;
+
+    // 创建对象
     Scanner input = new Scanner(System.in);
-    ctCheck ctDoc = new ctCheck(); // 消化科类对象
-    nmrCheck nmrDoc = new nmrCheck(); // 神经内科实现类对象
-    heartCheck htDoc = new heartCheck(); // 心脏科实现类对象
-    MenusOpt ms = new MenusOpt();
-    //	Drug dg = new Drug();
-    static Drug[] drugArr = {
-            new Drug("奥美拉唑", 112.0),
-            new Drug("雷贝拉唑", 55.0),
-            new Drug("阿莫西林", 20.5),
-            new Drug("阿司匹林", 80.0),
-            new Drug("瑞舒伐他汀", 58.2),
-            new Drug("单硝酸异山梨酯缓释片", 100.0),
-            new Drug("钙离子拮抗剂", 68.3),
-            new Drug("醛固酮受体拮抗剂", 30.2)
-    };
+    MenusOpt ms = new MenusOpt(); // 菜单显示对象
+    ExceptionCatch ec = new ExceptionCatch();
 
     /**
      * 挂号方法
      */
     public void register() {
         int pos = 0;
-        for (int i = 0; i < sickArr.length && sickArr[i] != null; i++) {
+        for (int i = 0; i < list.size() && list.get(i) != null; i++) {
             pos++;
         }
-        sickArr[pos] = new Hospital();
-        sickArr[pos].setId(pos + 1);
         System.out.print("\n请您输入您的姓名：");
-        sickArr[pos].setName(input.next());
-        while (true) {
-            try {
-                System.out.print("请您输入您的性别：");
-                String gender = input.next();
-                if (gender.equals("男") || gender.equals("女")) {
-                    sickArr[pos].setGender(gender);
-                    break;
-                } else {
-                    throw new GenderException();
-                }
-            } catch (GenderException e) {
-                System.out.println("请输入男或女！");
-            }
-        }
-        while(true) {
-            try {
-                System.out.print("请您输入您的年龄：");
-                int age = input.nextInt();
-                sickArr[pos].setAge(age);
-                break;
-            } catch (Exception e) {
-                System.out.println("请输入正确的年龄");
-                input.next();
-            }
-        }
+        String name = input.next();
+        System.out.print("请您输入您的性别：");
+        String gender = ec.catchGenderEx();
+        System.out.print("请您输入您的年龄：");
+        int age = ec.catchAgeEx();
         System.out.print("请您输入您的手机号：");
-        sickArr[pos].setTelephone(input.next());
-        boolean flag = true;
-        do {
-            ms.chooseDepart();
-            System.out.print("请您输入您要挂号的科室：");
-            String departOpt = input.next();
-            switch (departOpt) {
-                case "1":
-                    sickArr[pos].setDepartment("消化科");
-                    flag = false;
-                    break;
-                case "2":
-                    sickArr[pos].setDepartment("神经内科");
-                    flag = false;
-                    break;
-                case "3":
-                    sickArr[pos].setDepartment("心脏科");
-                    flag = false;
-                    break;
-                default:
-                    System.out.println("您的选择有误！请重新输入：");
-                    flag = true;
-            }
-        } while (flag);
-
-        // 打印信息
-        System.out.println("\n挂号成功！您的挂号信息：\n");
-        System.out.println("号码\t姓名\t性别\t手机号\t\t科室");
-        System.out.println(
-                sickArr[pos].getId() + "\t"
-                        + sickArr[pos].getName() + "\t"
-                        + sickArr[pos].getGender() + "\t"
-                        + sickArr[pos].getTelephone() + "\t"
-                        + sickArr[pos].getDepartment()
-        );
-        System.out.println("\n请到开具药方处问诊！\n");
+        long telephone = ec.catchTeleEx();
+        System.out.println("\n选择挂号的科室");
+        String[] arr = ms.chooseDepart(); // 显示二级菜单
+        System.out.print("请您做出选择：");
+        int departOpt = chooseOpt(arr); // 用户选择方法
+        String department = "";
+        switch (departOpt) {
+            case 1:
+                department = "消化科";
+                break;
+            case 2:
+                department = "神经内科";
+                break;
+            case 3:
+                department = "心脏科";
+                break;
+            case 4:
+                return;
+        }
+        list.add(new Patient(pos+1,name,gender,age,telephone,department,"开始:无检查","无状态",0.0,0.0,0.0,"空",0.0));
+        Patient p = list.get(pos);
+        System.out.println("挂号成功！请记住您的挂号信息随后到开具药方处问诊");
+        System.out.println("挂号号码："+ p.getId() + " , 姓名：" + p.getName() + " , 性别：" + p.getGender() + " , 手机号：" + p.getTelephone() + " , 挂号科室：" + p.getDepartment());
     }
 
     /**
      * 收费方法
      */
-    public void toll(double rsPrice) {
-        Hospital hp = match(); // 匹配挂号
-        if (hp != null) {
-            String c = hp.getCtState(); // CT检查状态获取
-            String n = hp.getNmrState(); // 核磁共振检查状态获取
-            String h = hp.getHeartState(); // 心电图检查状态获取
-            String d = hp.getBuyDrugState(); //买药状态获取
+    public void toll() {
+        Patient p = match(); // 匹配挂号
+        if (p != null) {
+            String c = p.getCheckState(); // 检查状态获取
+            double m = p.getCheckMoney(); // 缴费金额
+            String d = p.getBuyDrugState(); //买药状态获取
             // 匹配需要缴费的项目
-            if (c != null && c.equals("待检查") && hp.getCtMoney() == 0.0) {
-
+            if (c.equals("CT:待检查") && m == 0.0) {
                 System.out.print("\n是否缴纳CT的费用200.0元(y/n)：");
-                hp.setCtMoney(ifMoney(input.next(), 200.0, "CT"));
-
-            } else if (n != null && n.equals("待检查") && hp.getNmrMoney() == 0.0) {
-
+                p.setCheckMoney((ifMoney(input.next(), 200.0, "CT")));
+            } else if (c.equals("核磁共振:待检查") && m == 0.0) {
                 System.out.println("\n是否缴纳核磁共振的费用800.0元(y/n)：");
-                hp.setNmrMoney(ifMoney(input.next(), 800.0, "核磁共振"));
-
-            } else if (h != null && h.equals("待检查") && hp.getHeartMoney() == 0.0) {
-
+                p.setCheckMoney((ifMoney(input.next(), 800.0, "CT")));
+            } else if (c.equals("心电图:待检查") && m == 0.0) {
                 System.out.println("\n是否缴纳心电图的费用100.0元(y/n)：");
-                hp.setHeartMoney(ifMoney(input.next(), 100.0, "心电图"));
-
-            } else if (d != null && d.equals("已批价")) {
-
-                System.out.println("\n是否缴纳药品的费用" + rsPrice + "元(y/n)：");
-                double im = ifMoney(input.next(), rsPrice, "药品");
+                p.setCheckMoney((ifMoney(input.next(), 100.0, "CT")));
+            } else if (d.equals("已批价")) {
+                System.out.println("\n是否缴纳药品的费用元(y/n)：");
+                double im = ifMoney(input.next(), 1000, "药品");
                 if (im != 0.0) {
-                    hp.setMedicineMoney(im);
-                    hp.setBuyDrugState("已缴费");
+                    p.setMedicineMoney(im);
+                    p.setBuyDrugState("已缴费");
                 }
             } else {
                 System.out.println("\n您没有需要缴费的项目！");
             }
-        } else {
-            System.out.println("\n您未挂号，请挂号后再过来！");
+        }
+    }
+    /**
+     * 医生项目检查方法
+     */
+    public String docProCheck(Patient p){
+        String state = p.getCheckState();
+        String[] c = state.split(":");
+        double give = p.getCheckMoney(); // 获取用户CT的缴费情况
+        if(give == 0.0 && "待检查".equals(c[1])){
+            // 没交费待检查的情况
+            System.out.println("\n您没有缴费，请缴费后再过来检查！");
+            return "待检查";
+        }else if(give != 0.0 && "待检查".equals(c[1])){
+            // 缴费了待检查的情况
+            System.out.println("\n开始检查............检查结束！请回到医生处开具药方");
+            return "已检查";
+        }else if(give != 0.0 && "已检查".equals(c[1])){
+            // 缴费了 已检查的情况
+            System.out.println("\n您已经检查过了，无需再次检查！");
+            return "已检查";
+        }else if("医生已开药".equals(c[1])){
+            // 已经开药的情况
+            System.out.println("您都开药了跑过来干嘛！滚去药房！");
+            return "医生已开药";
+        }
+        return "无检查";
+    }
+    /**
+     * 医生就诊方法
+     */
+    public String doctorCheck(Patient p,String pro){
+        String state = p.getCheckState();
+        String[] c = state.split(":");
+        switch (c[1]) {
+            case "无检查":
+                // 无检查的状态则进行看病
+                System.out.println("望闻问切。。。。。。。。。。。。。");
+                System.out.println("建议您去做一下 " + pro + " 检查再回来开药方吧");
+                return "待检查";
+            case "待检查":
+                // 待检查的状态则提醒病人去检查项目
+                System.out.println("请检查完" + c[0] + "再过来！");
+                return "待检查";
+            case "已检查":
+                // 已检查的状态则给病人开药
+                System.out.println("正在为您开药。。。。。。。。。。。。。。已开药");
+                return "医生已开药";
+            default:
+                // 其他情况则是医生已完成就诊
+                System.out.println("就诊结束了就不要过来了，去拿药吧");
+                return "医生已开药";
         }
     }
 
     /**
-     * 调用接口 向上转型
+     * 医生批价方法
      */
-    public void choseDoc(CheckPro cp, Hospital hp) {
-        cp.docCheck(hp);
-    }
-
-    public void choseAi(CheckPro cp) {
-        cp.aiCheck();
-    }
-
-    /**
-     * CT检查方法
-     */
-    public void ctCheck() {
-        choseAi(ctDoc); // 向上转型使用ct检查方法
-    }
-
-    /**
-     * 核磁共振方法
-     */
-    public void nmrCheck() {
-        choseAi(nmrDoc); // 向上转型使用核磁共振检查方法
-    }
-
-    /**
-     * 心电图方法
-     */
-    public void heartCheck() {
-        choseAi(htDoc); // 向上转型使用心电图检查方法
-    }
-
-    /**
-     * 根据科室分配医生
-     */
-    public void makePrescription() {
-        Hospital hp = match();// 匹配挂号
+/*    public double evaluatePrice() {
+        Patient hp = match();// 匹配挂号
         if (hp != null) {
-            switch (hp.getDepartment()) {
-                case "消化科":
-                    choseDoc(ctDoc, hp);
-                    break;
-                case "神经内科":
-                    choseDoc(nmrDoc, hp);
-                    break;
-                case "心脏科":
-                    choseDoc(htDoc, hp);
-                    break;
-            }
-        } else {
-            System.out.println("您未挂号，请挂号后再过来！");
-        }
-    }
-
-    /**
-     * 批价方法
-     */
-    public double evaluatePrice() {
-        Hospital hp = match();// 匹配挂号
-        if (hp != null) {
-            String str = hp.getDrugOrders(); //获取药方
             String state = hp.getBuyDrugState(); // 获取买药状态
             double sta = hp.getMedicineMoney(); // 获取买药花费
             if (str != null && sta == 0.0 && state.equals("待批价")) {
@@ -229,12 +166,12 @@ public class Doctor extends Hospital {
             System.out.println("您未挂号，请挂号后再过来！");
         }
         return 0.0;
-    }
+    }*/
 
     /**
      * 发药方法
      */
-    public void giveDrug() {
+    /*public void giveDrug() {
         Hospital hp = match();// 匹配挂号
         if (hp != null) {
             double rs = hp.getMedicineMoney(); // 获取药方费用
@@ -256,11 +193,9 @@ public class Doctor extends Hospital {
             } else {
                 System.out.println("您前面的项目啥都没做，您来找打吗？");
             }
-        } else {
-            System.out.println("您未挂号，请挂号后再过来！");
         }
     }
-
+*/
     /**
      * 计算药品价格
      */

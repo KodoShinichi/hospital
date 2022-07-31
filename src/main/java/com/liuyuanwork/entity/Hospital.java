@@ -1,73 +1,80 @@
 package com.liuyuanwork.entity;
 
+import com.liuyuanwork.index.Patient;
+import com.liuyuanwork.interfacedemo.CheckPro;
+import com.liuyuanwork.interfacedemo.ctCheck;
+import com.liuyuanwork.interfacedemo.heartCheck;
+import com.liuyuanwork.interfacedemo.nmrCheck;
+import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Random;
 
 /**
  *医院父类(Hospital)
  * @author 刘芫
- * @since jdk18
+ * @since jdk1.8
  * @version 2.0
  */
 
 public class Hospital{
-    private int id; // 登记号
-    private String name; // 姓名
-    private String gender; // 性别
-    private int age; // 年龄
-    private String telephone; // 电话
-    private String department; // 就诊科室
-    private String ctState; // 检查CT状态
-    private String nmrState; // 检查核磁共振状态
-    private String heartState; // 检查心电图状态
-    private String buyDrugState; // 买药状态
-    private double ctMoney; // CT费用
-    private double nmrMoney; // 核磁工资费用
-    private double heartMoney; // 心电图费用
-    private String drugOrders; // 药方
-    private double medicineMoney; // 药方费用
-    private double sumPrice; // 总费用
 
-    static Hospital[] sickArr = new Hospital[20]; // 病例单对象数组
-    // 无参构造器
-    public Hospital() {
+    ArrayList<Patient> list = new ArrayList<>();
+
+    public void choseDoc(CheckPro cp, Patient p) {
+        cp.docCheck(p);
     }
-    // 有参构造器
-	/* public Hospital(int id, String name, String gender, int age, String telephone, String department, String ctState, String nmrState, String heartState, String buyDrugState, double ctMoney, double nmrMoney, double heartMoney, double sumPrice) {
-        this.id = id;
-        this.name = name;
-        this.gender = gender;
-        this.age = age;
-        this.telephone = telephone;
-        this.department = department;
-        this.ctState = ctState;
-        this.nmrState = nmrState;
-        this.heartState = heartState;
-        this.buyDrugState = buyDrugState;
-        this.ctMoney = ctMoney;
-        this.nmrMoney = nmrMoney;
-        this.heartMoney = heartMoney;
-        this.sumPrice = sumPrice;
-    } */
-    // 重写toString方法
-    // @Override
-	/* public String toString(){
-		return id + "," + name + "," + gender + "," + age + "," + telephone + "," + department + "," + sumPrice;
-	} */
+    public void choseAi(CheckPro cp) {
+        cp.aiCheck();
+    }
+
+    public static Drug[] drugArr = {
+            new Drug("奥美拉唑", 112.0),
+            new Drug("雷贝拉唑", 55.0),
+            new Drug("阿莫西林", 20.5),
+            new Drug("阿司匹林", 80.0),
+            new Drug("瑞舒伐他汀", 58.2),
+            new Drug("单硝酸异山梨酯缓释片", 100.0),
+            new Drug("钙离子拮抗剂", 68.3),
+            new Drug("醛固酮受体拮抗剂", 30.2)
+    };
+
+    // 创建对象
+    ctCheck ctDoc = new ctCheck(); // 消化科实现类对象
+    nmrCheck nmrDoc = new nmrCheck(); // 神经内科实现类对象
+    heartCheck htDoc = new heartCheck(); // 心脏科实现类对象
+
+    /**
+     * 判断输入是否正确
+     */
+    Scanner input = new Scanner(System.in);
+    public int chooseOpt(String[] arr){
+        System.out.print("请选择您需要的功能：");
+        while (true){
+            try {
+                int opt = input.nextInt();
+                if (opt >0 && opt<=arr.length) {
+                    return opt;
+                }else {
+                    System.out.print("\n您的选择有误请重新输入：");
+                }
+            } catch (Exception e) {
+                System.out.print("\n输入不合法请重新输入：");
+                input.next();
+            }
+        }
+    }
 
     /**
      *匹配是否挂号方法
      */
-    Scanner input = new Scanner(System.in);
-    Random rand = new Random();
-    public Hospital match(){
+    public Patient match(){
         System.out.print("请您输入您的挂号号码：");
         int id = input.nextInt();
-        for (int i=0; i<sickArr.length && sickArr[i] != null; i++){
-            if(id == sickArr[i].getId()){
-                return sickArr[i];
+        for (int i=0; i<list.size() && list.get(i) != null; i++){
+            if(id == list.get(i).getId()){
+                return list.get(i);
             }
         }
+        System.out.println("您未挂号，请挂号后再过来！");
         return null;
     }
 
@@ -80,138 +87,54 @@ public class Hospital{
             return cost;
         }else {
             System.out.println("\n拜拜！");
+            return 0.0;
         }
-        return 0.0;
+    }
+    /**
+     * 分配就诊医生
+     */
+    public void makePrescription() {
+        Patient p = match();// 匹配挂号
+        if (p != null) {
+            switch (p.getDepartment()) {
+                case "消化科":
+                    choseDoc(ctDoc,p);
+                    break;
+                case "神经内科":
+                    choseDoc(nmrDoc,p);
+                    break;
+                case "心脏科":
+                    choseDoc(htDoc,p);
+                    break;
+                default:
+            }
+        }
     }
 
     /**
-     *getter 和 setter 方法
+     * 分配项目检查医生
      */
-    public int getId() {
-        return id;
+    public void makeAiDocCheck(int secondOpt){
+        switch (secondOpt) {
+            case 1:
+                choseAi(ctDoc);
+                break;
+            case 2:
+                choseAi(nmrDoc);
+                break;
+            case 3:
+                choseAi(htDoc);
+                break;
+            case 4:
+                break;
+        }
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public String getCtState() {
-        return ctState;
-    }
-
-    public void setCtState(String ctState) {
-        this.ctState = ctState;
-    }
-
-    public String getNmrState() {
-        return nmrState;
-    }
-
-    public void setNmrState(String nmrState) {
-        this.nmrState = nmrState;
-    }
-
-    public String getHeartState() {
-        return heartState;
-    }
-
-    public void setHeartState(String heartState) {
-        this.heartState = heartState;
-    }
-
-    public String getBuyDrugState() {
-        return buyDrugState;
-    }
-
-    public void setBuyDrugState(String buyDrugState) {
-        this.buyDrugState = buyDrugState;
-    }
-
-    public double getCtMoney() {
-        return ctMoney;
-    }
-
-    public void setCtMoney(double ctMoney) {
-        this.ctMoney = ctMoney;
-    }
-
-    public double getNmrMoney() {
-        return nmrMoney;
-    }
-
-    public void setNmrMoney(double nmrMoney) {
-        this.nmrMoney = nmrMoney;
-    }
-
-    public double getHeartMoney() {
-        return heartMoney;
-    }
-
-    public void setHeartMoney(double heartMoney) {
-        this.heartMoney = heartMoney;
-    }
-
-    public String getDrugOrders() {
-        return drugOrders;
-    }
-
-    public void setDrugOrders(String drugOrders) {
-        this.drugOrders = drugOrders;
-    }
-
-    public double getMedicineMoney() {
-        return medicineMoney;
-    }
-
-    public void setMedicineMoney(double medicineMoney) {
-        this.medicineMoney = medicineMoney;
-    }
-
-    public double getSumPrice() {
-        return sumPrice;
-    }
-
-    public void setSumPrice(double sumPrice) {
-        this.sumPrice = sumPrice;
+    /**
+     * 分割状态字符串
+     */
+    public String[] splitString(Patient p){
+        String state = p.getCheckState();
+        return state.split(":");
     }
 }
