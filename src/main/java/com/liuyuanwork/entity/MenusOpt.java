@@ -9,41 +9,41 @@ package com.liuyuanwork.entity;
 public class MenusOpt{
 	// 首页菜单显示
 	public void showIndexMenus() {
-		String[] arr = {"挂号收费","拍片检查","开具药方","药房取药","退出系统"};
+		String[] arr = {"挂号收费","拍片检查","医生就诊","药房取药","退出系统"};
 		System.out.println("\n=============================欢迎使用医院智能系统==========================\n");
 		printArr(arr);
-		System.out.println("=============================================================================\n");
+		System.out.println("==========================================================================\n");
 	}
 
 	// 根据用户选择的一级菜单输出不同的二级菜单
-	public void showSecondMenus(String opt) {
+	public String[] showSecondMenus(String opt) {
 		switch(opt){
 			case "1":
-				String[] arrOne = {"挂号","收费"};
+				String[] arrOne = {"挂号","收费","返回上一级菜单"};
 				System.out.println("\n=============================挂号、收费======================================\n");
 				printArr(arrOne);
-				System.out.print("=============================================================================\n");
-				break;
+				System.out.print("================================================================================\n");
+				return arrOne;
 			case "2":
-				String[] arrTwo = {"CT","核磁共振","心电图"};
+				String[] arrTwo = {"CT","核磁共振","心电图","返回上一级菜单"};
 				System.out.println("\n=============================拍片检查====================================\n");
 				printArr(arrTwo);
 				System.out.print("=============================================================================\n");
-				break;
+				return arrTwo;
 			case "4":
-				String[] arrThree = {"批价","发药"};
+				String[] arrThree = {"批价","发药","返回上一级菜单"};
 				System.out.println("\n=============================药房====================================\n");
 				printArr(arrThree);
 				System.out.print("=============================================================================\n");
-				break;
+				return arrThree;
 		}
+		return null;
 	}
 	// 打印科室菜单
-	public void chooseDepart(){
-		String[] arr = {"消化科","神经内科","心脏科"};
-		System.out.println();
+	public String[] chooseDepart(){
+		String[] arr = {"消化科","神经内科","心脏科","返回上一级菜单"};
 		printArr(arr);
-		System.out.println();
+		return arr;
 	}
 	// 循环输出数组方法
 	public void printArr(String[] arr) {
