@@ -9,7 +9,7 @@ import com.liuyuanwork.entity.Patient;
 public interface ChargePro {
 
     /**
-     * 收费功能
+     * 收费功能原型
      */
     void toll(Patient p);
 }

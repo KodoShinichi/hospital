@@ -8,13 +8,13 @@ import com.liuyuanwork.entity.Patient;
 public interface CheckPro{
 
 	/**
-	 * 项目检查接口
+	 * 项目检查方法原型
 	 */
 
 	void aiCheck(Patient p);
 
 	/**
-	 * 各医生检查接口
+	 * 各医生检查方法原型
 	 */
 	void docCheck(Patient p);
 }
