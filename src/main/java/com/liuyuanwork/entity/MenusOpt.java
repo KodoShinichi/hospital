@@ -41,7 +41,7 @@ public class MenusOpt{
 	}
 	// 打印科室菜单
 	public String[] chooseDepart(){
-		String[] arr = {"消化科","神经内科","心脏科","返回上一级菜单"};
+		String[] arr = {"消化科","神经科","心脏科","返回上一级菜单"};
 		printArr(arr);
 		return arr;
 	}

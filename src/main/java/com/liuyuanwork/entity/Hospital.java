@@ -1,10 +1,10 @@
 package com.liuyuanwork.entity;
 
 import com.liuyuanwork.customexception.ExceptionCatch;
-import com.liuyuanwork.implementation.Digestive;
-import com.liuyuanwork.implementation.Heart;
-import com.liuyuanwork.implementation.Neurology;
-import com.liuyuanwork.implementation.Pharmacy;
+import com.liuyuanwork.implementation.GastroDepartment;
+import com.liuyuanwork.implementation.HeartDepartment;
+import com.liuyuanwork.implementation.NerveDepartment;
+import com.liuyuanwork.implementation.DrugDepartment;
 import com.liuyuanwork.interfacepro.*;
 
 import java.util.ArrayList;
@@ -36,10 +36,10 @@ public class Hospital {
     ExceptionCatch ec = new ExceptionCatch();
     Scanner sc = new Scanner(System.in);
     MenusOpt ms = new MenusOpt(); // 显示菜单对象
-    Digestive ctDoc = new Digestive(); // 消化科实现类对象
-    Neurology nmrDoc = new Neurology(); // 神经内科实现类对象
-    Heart htDoc = new Heart(); // 心脏科实现类对象
-    Pharmacy pmy = new Pharmacy(); // 药方实现类对象
+    GastroDepartment ctDoc = new GastroDepartment(); // 消化科实现类对象
+    NerveDepartment nmrDoc = new NerveDepartment(); // 神经内科实现类对象
+    HeartDepartment htDoc = new HeartDepartment(); // 心脏科实现类对象
+    DrugDepartment pmy = new DrugDepartment(); // 药方实现类对象
 
 
     /**
@@ -172,7 +172,7 @@ public class Hospital {
                 case "消化科":
                     chooseDoc(ctDoc,p);
                     break;
-                case "神经内科":
+                case "神经科":
                     chooseDoc(nmrDoc,p);
                     break;
                 case "心脏科":

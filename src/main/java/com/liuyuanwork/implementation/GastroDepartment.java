@@ -9,7 +9,7 @@ import com.liuyuanwork.interfacepro.CheckPro;
  *消化科实现类
  */
 
-public class Digestive implements CheckPro, ChargePro {
+public class GastroDepartment implements CheckPro, ChargePro {
 	private static final Doctor dc = new Doctor();
 	/**
 	 *CT检查方法
