@@ -1,30 +1,25 @@
 package com.liuyuanwork.entity;
 
-import com.liuyuanwork.index.Patient;
-import com.liuyuanwork.interfacedemo.CheckPro;
-import com.liuyuanwork.interfacedemo.ctCheck;
-import com.liuyuanwork.interfacedemo.heartCheck;
-import com.liuyuanwork.interfacedemo.nmrCheck;
+import com.liuyuanwork.customexception.ExceptionCatch;
+import com.liuyuanwork.implementation.Digestive;
+import com.liuyuanwork.implementation.Heart;
+import com.liuyuanwork.implementation.Neurology;
+import com.liuyuanwork.implementation.Pharmacy;
+import com.liuyuanwork.interfacepro.*;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- *医院父类(Hospital)
+ * 医院父类(Hospital)
  * @author 刘芫
- * @since jdk1.8
  * @version 2.0
+ * @since jdk1.8
  */
 
-public class Hospital{
+public class Hospital {
 
-    ArrayList<Patient> list = new ArrayList<>();
-
-    public void choseDoc(CheckPro cp, Patient p) {
-        cp.docCheck(p);
-    }
-    public void choseAi(CheckPro cp) {
-        cp.aiCheck();
-    }
+    public static final ArrayList<Patient> list = new ArrayList<>();
 
     public static Drug[] drugArr = {
             new Drug("奥美拉唑", 112.0),
@@ -37,40 +32,37 @@ public class Hospital{
             new Drug("醛固酮受体拮抗剂", 30.2)
     };
 
-    // 创建对象
-    ctCheck ctDoc = new ctCheck(); // 消化科实现类对象
-    nmrCheck nmrDoc = new nmrCheck(); // 神经内科实现类对象
-    heartCheck htDoc = new heartCheck(); // 心脏科实现类对象
+    // 实例对象
+    ExceptionCatch ec = new ExceptionCatch();
+    Scanner sc = new Scanner(System.in);
+    MenusOpt ms = new MenusOpt(); // 显示菜单对象
+    Digestive ctDoc = new Digestive(); // 消化科实现类对象
+    Neurology nmrDoc = new Neurology(); // 神经内科实现类对象
+    Heart htDoc = new Heart(); // 心脏科实现类对象
+    Pharmacy pmy = new Pharmacy(); // 药方实现类对象
+
 
     /**
-     * 判断输入是否正确
+     * 调用接口
      */
-    Scanner input = new Scanner(System.in);
-    public int chooseOpt(String[] arr){
-        System.out.print("请选择您需要的功能：");
-        while (true){
-            try {
-                int opt = input.nextInt();
-                if (opt >0 && opt<=arr.length) {
-                    return opt;
-                }else {
-                    System.out.print("\n您的选择有误请重新输入：");
-                }
-            } catch (Exception e) {
-                System.out.print("\n输入不合法请重新输入：");
-                input.next();
-            }
-        }
+    public void chooseAi(CheckPro cp, Patient p) {
+        cp.aiCheck(p);
+    }
+    public void chooseDoc(CheckPro cp, Patient p) {
+        cp.docCheck(p);
+    }
+    public void choosePay(ChargePro cgp,Patient p){
+        cgp.toll(p);
     }
 
     /**
-     *匹配是否挂号方法
+     * 匹配是否挂号方法
      */
-    public Patient match(){
+    public Patient match() {
         System.out.print("请您输入您的挂号号码：");
-        int id = input.nextInt();
-        for (int i=0; i<list.size() && list.get(i) != null; i++){
-            if(id == list.get(i).getId()){
+        int id = ec.catchIntEx();
+        for (int i = 0; i < list.size() && list.get(i) != null; i++) {
+            if (id == list.get(i).getId()) {
                 return list.get(i);
             }
         }
@@ -79,62 +71,115 @@ public class Hospital{
     }
 
     /**
-     *判断用户是否想缴费
+     * 判断病人是否想缴费
      */
-    public double ifMoney(String ans,double cost,String n) {
-        if ("y".equals(ans)){
-            System.out.println("\n您的"+ n +"费用已缴纳！！");
+    public double ifMoney(String n, double cost) {
+        System.out.print("\n是否缴纳" + n + "的费用" + cost + "元(y/n)：");
+        String ans = sc.next();
+        if ("y".equals(ans)) {
+            System.out.println("\n您的" + n + "费用已缴纳！！");
             return cost;
-        }else {
+        } else {
             System.out.println("\n拜拜！");
             return 0.0;
         }
     }
+
     /**
-     * 分配就诊医生
+     * 判断病人是否有检查项目
      */
-    public void makePrescription() {
-        Patient p = match();// 匹配挂号
+    public boolean ifCheckPro(Patient p){
+        if ("开始".equals(splitString(p)[0])) {
+            System.out.println("您没有需要检查的项目！");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 病人检查状态传递
+     */
+    public String[] splitString(Patient p) {
+        String state = p.getCheckState();
+        return state.split(":");
+    }
+
+    /**
+     * 缴费科室分配
+     */
+    public void allotToll(){
+        Patient p = match(); // 匹配挂号
         if (p != null) {
-            switch (p.getDepartment()) {
-                case "消化科":
-                    choseDoc(ctDoc,p);
-                    break;
-                case "神经内科":
-                    choseDoc(nmrDoc,p);
-                    break;
-                case "心脏科":
-                    choseDoc(htDoc,p);
-                    break;
-                default:
+            String c = p.getCheckState(); // 检查状态获取
+            String d = p.getBuyDrugState(); // 买药状态获取
+            double checkMoney = p.getCheckMoney(); // 检查缴费金额
+            double medicineMoney = p.getMedicineMoney(); // 药方缴费金额
+            if(checkMoney == 0.0){
+                switch (c) {
+                    case "CT:待检查":
+                        choosePay(ctDoc,p);
+                        return;
+                    case "核磁共振:待检查":
+                        choosePay(nmrDoc,p);
+                        return;
+                    case "心电图:待检查":
+                        choosePay(htDoc,p);
+                        return;
+                    default:
+                        System.out.println("\n您没有需要缴费的项目！");
+                        return;
+                }
+            }
+            if (medicineMoney == 0.0 && d.equals("已批价")) {
+                choosePay(pmy, p);
+            }else {
+                System.out.println("\n您没有需要缴费的项目！");
             }
         }
     }
 
     /**
-     * 分配项目检查医生
+     * 检查科室分配
      */
-    public void makeAiDocCheck(int secondOpt){
-        switch (secondOpt) {
-            case 1:
-                choseAi(ctDoc);
-                break;
-            case 2:
-                choseAi(nmrDoc);
-                break;
-            case 3:
-                choseAi(htDoc);
-                break;
-            case 4:
-                break;
+    public void allotCheck(String firstOpt) {
+        Patient p = match();
+        if(p != null && ifCheckPro(p)) {
+            String[] arr = ms.showSecondMenus(firstOpt);
+            int secondOpt = ec.chooseOpt(arr);
+            switch (secondOpt) {
+                case 1:
+                    chooseAi(ctDoc,p);
+                    break;
+                case 2:
+                    chooseAi(nmrDoc,p);
+                    break;
+                case 3:
+                    chooseAi(htDoc,p);
+                    break;
+                case 4:
+                    break;
+            }
         }
     }
 
     /**
-     * 分割状态字符串
+     * 就诊科室分配
      */
-    public String[] splitString(Patient p){
-        String state = p.getCheckState();
-        return state.split(":");
+    public void allotDoctor() {
+        Patient p = match();
+        if(p != null){
+            switch (p.getDepartment()) {
+                case "消化科":
+                    chooseDoc(ctDoc,p);
+                    break;
+                case "神经内科":
+                    chooseDoc(nmrDoc,p);
+                    break;
+                case "心脏科":
+                    chooseDoc(htDoc,p);
+                    break;
+                default:
+            }
+        }
     }
 }
